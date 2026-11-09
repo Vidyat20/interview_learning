@@ -1,0 +1,13 @@
+# Maven generated files
+target/
+
+# TestNG generated reports
+test-output/
+
+# Eclipse generated files
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
