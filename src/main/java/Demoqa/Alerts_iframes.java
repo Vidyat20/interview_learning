@@ -1,3 +1,4 @@
+
 package Demoqa;
 
 import static org.testng.Assert.assertEquals;
@@ -11,23 +12,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class Alerts_iframes extends HomePage {
 
-//    // Locators
-//
-//    By alertMenu = By.xpath(
-//        "//div[contains(text(),'Alerts, Frame & Windows')]"
-//    );
-//
-//    By browserWindow = By.xpath(
-//        "//span[normalize-space()='Browser Windows']"
-//    );
-//
-//    By newTab = By.xpath("//button[text()='New Tab']");
-
-
-    // Methods
-
     // Click first card from HomePage
     public void elements_menu() {
+
         clickFirstCard();
     }
 
@@ -35,43 +22,80 @@ public class Alerts_iframes extends HomePage {
     public void Alerts_menu() {
 
         WebElement alert_menu = wait.until(
-            ExpectedConditions.presenceOfElementLocated(
+            ExpectedConditions.elementToBeClickable(
                 By.xpath("(//div[@class='icon'])[3]")
             )
         );
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
-        // Step 1: Scroll the element into the center of the screen
         js.executeScript(
             "arguments[0].scrollIntoView({block:'center'});",
             alert_menu
         );
 
-        // Step 2: Wait until the element is clickable
-        wait.until(ExpectedConditions.elementToBeClickable(alert_menu));
-
-        // Step 3: Click the element
         alert_menu.click();
     }
+
     // Click Browser Windows and open a new tab
     public void Browser_windows() {
 
-          WebElement browser_menu = driver.findElement(By.xpath("//span[normalize-space()='Browser Windows']"));
-          browser_menu.click();
-          WebElement new_tab = driver.findElement(By.xpath("//button[@id='tabButton']"));
-          new_tab.click();
-          String actual_text = new_tab.getText();
-          assertEquals(actual_text, "New Tab");
-          System.out.println("assertion passed");
+        WebElement browser_menu = wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.xpath("//span[normalize-space()='Browser Windows']")
+            )
+        );
+
+        browser_menu.click();
+
+        String parentWindow = driver.getWindowHandle();
+
+        WebElement new_tab = wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.id("tabButton")
+            )
+        );
+
+        assertEquals(new_tab.getText(), "New Tab");
+
+        new_tab.click();
+
+        // Wait until new tab opens
+        wait.until(ExpectedConditions.numberOfWindowsToBe(2));
+
+        Set<String> windows = driver.getWindowHandles();
+
+        for (String window : windows) {
+
+            if (!window.equals(parentWindow)) {
+                driver.switchTo().window(window);
+                break;
+            }
+        }
+
+        System.out.println("Switched to new tab successfully");
+
+        // Close new tab and return to parent
+        driver.close();
+
+        driver.switchTo().window(parentWindow);
     }
+
+    // Click Alerts menu
     public void alert() {
-    	WebElement Alerts = driver.findElement(By.xpath("//span[normalize-space()='Alerts']"));
-    	Alerts.click();
-    	String alert_text = Alerts.getText();
-    	assertEquals(alert_text, "Alerts");
-    	System.out.println("Alerts text is matching with the actual text");
+
+        WebElement Alerts = wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.xpath("//span[normalize-space()='Alerts']")
+            )
+        );
+
+        Alerts.click();
+
+        String alert_text = Alerts.getText();
+
+        assertEquals(alert_text, "Alerts");
+
+        System.out.println("Alerts text assertion passed");
     }
-    
-    
 }

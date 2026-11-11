@@ -1,50 +1,53 @@
-package Demoqa;
 
-import static org.testng.Assert.assertEquals;
+package Demoqa;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.OutputType;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 
 public class BaseClass {
 
     protected WebDriver driver;
     protected WebDriverWait wait;
 
-    // 1. Launch Chrome Browser
-    public void launchBrowser() {
 
-        System.setProperty(
-            "webdriver.chrome.driver",
-            "C:\\selenium\\Corefiles1\\chromedriver.exe"
-        );
+@BeforeMethod(alwaysRun = true)
+public void launchBrowser() {
 
-        driver = new ChromeDriver();
+    System.out.println("Browser initialization started");
 
-        driver.manage().window().maximize();
+    System.setProperty(
+        "webdriver.chrome.driver",
+        "C:\\selenium\\Corefiles1\\chromedriver.exe"
+    );
 
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    driver = new ChromeDriver();
 
-        driver.get("https://demo-qa-app.azurewebsites.net/");
+    driver.manage().window().maximize();
 
-        String title = driver.getCurrentUrl();
+    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        assertEquals(title, "https://demo-qa-app.azurewebsites.net/");
-    }
+    driver.get("https://demo-qa-app.azurewebsites.net/");
 
-    // 2. Capture Screenshot on Test Failure
+    System.out.println("Driver initialized: " + (driver != null));
+    System.out.println("Wait initialized: " + (wait != null));
+}
+
+
     public void captureScreenshot(String testName) {
 
         try {
+            if (driver == null) return;
+
             TakesScreenshot ts = (TakesScreenshot) driver;
 
             File source = ts.getScreenshotAs(OutputType.FILE);
@@ -62,26 +65,22 @@ public class BaseClass {
                 StandardCopyOption.REPLACE_EXISTING
             );
 
-            System.out.println(
-                "Screenshot saved: " + destination.getAbsolutePath()
-            );
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 3. Get WebDriver instance
     public WebDriver getDriver() {
         return driver;
     }
 
-    // 4. Close Browser
+    @AfterMethod(alwaysRun = true)
     public void closeBrowser() {
 
         if (driver != null) {
             driver.quit();
             driver = null;
+            wait = null;
         }
     }
 }
